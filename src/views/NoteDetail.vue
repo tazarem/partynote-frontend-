@@ -1,7 +1,6 @@
 <template>
-   <!-- class="grey lighten-3" -->
       <v-layout fill-height column :class="this.note.color" style="position:static !important;">
-
+<!-- 드로어 부분! -->
     <v-navigation-drawer
       v-model="RightDrawer"
       app
@@ -31,6 +30,7 @@
               </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+<!-- 드로워 컴포넌트 -->
 
           <scheduler></scheduler>
         <v-divider></v-divider>
@@ -38,6 +38,8 @@
         <v-divider></v-divider>
           <tagfilter></tagfilter>
         <v-divider></v-divider>
+
+<!-- 드로워 컴포넌트 -->
       </v-list>
     </v-navigation-drawer>
 
