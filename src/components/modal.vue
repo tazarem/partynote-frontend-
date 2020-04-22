@@ -51,7 +51,7 @@
               >
                   <v-text-field
                   label="제목"
-                  v-model="NewCard.postTitle"
+                  v-model="Card.postTitle"
                   :rules="requiredRules"
                   required
                   counter="12"
@@ -59,14 +59,14 @@
                   </v-text-field>
                   <v-text-field
                   label="부제목"
-                  v-model="NewCard.postSubtitle"
+                  v-model="Card.postSubtitle"
                   >
                   </v-text-field>
   <!-- height:550 -->
   <DxHtmlEditor
     :media-resizing="enabled"
     :height="550"
-    v-model="NewCard.postContents"
+    v-model="Card.postContents"
   >
     <DxToolbar>
       <DxItem format-name="undo"/>
@@ -85,13 +85,13 @@
       <DxItem format-name="alignJustify"/>
     </DxToolbar>
 
-    <div v-html="this.NewCard.postContents" >
+    <div v-html="this.Card.postContents" >
     </div>
   </DxHtmlEditor>
 
                   <!-- <v-textarea
                     filled
-                    v-model="NewCard.contents"
+                    v-model="Card.contents"
                     background-color=""
                     height="540"
                     no-resize
@@ -126,7 +126,7 @@
             </v-btn>
             </template>
             <slot name="footerButton"></slot>
-            <v-btn color="error" depressed v-if="modalCase==='edit'">
+            <v-btn color="error" depressed v-if="modalCase==='edit'" @click="doEditPost">
               수정
             </v-btn>
             <v-btn
@@ -150,7 +150,7 @@ import {
 export default {
   created () {
     if (this.modalCase === 'edit') {
-      this.NewCard = this.editCard
+      this.Card = this.editCard
     }
   },
   props: ['dialog', 'modalCase', 'editCard'],
@@ -174,7 +174,7 @@ export default {
         enabled: true
       },
       parsedText: '',
-      NewCard: {
+      Card: {
         // postCode: '',
         postTitle: '',
         postSubtitle: '',
@@ -189,10 +189,15 @@ export default {
   },
   methods: {
     newCard () {
-      this.$emit('newcard', this.NewCard)
+      this.$emit('newcard', this.Card)
     },
     closeModal () {
       this.$emit('close')
+    },
+    doEditPost () {
+      console.log(this.Card)
+      this.$emit('doedit', this.Card)
+      this.closeModal()
     }
   }
 }

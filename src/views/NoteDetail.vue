@@ -169,7 +169,7 @@
       <modal
       v-on:newcard="createNewCard"
       v-on:close="closeModal"
-      v-on:editcard="doEdit"
+      v-on:doedit="doEdit"
       :editCard="editCard"
       :modalCase="ModalCase"
       :dialog="OpenModal"
