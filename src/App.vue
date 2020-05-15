@@ -136,7 +136,7 @@
 <!-- 메뉴 닫힘 -->
 
     </v-app-bar>
-       <v-content fill-height :class="user.color" style="max-width:100%;">
+       <v-content fill-height :class="user.color" style="max-width:100%; max-height:100% overflow:hidden;">
          <transition name="fade" mode="out-in">
          <router-view v-on:drawerControll="RightDrawer=!RightDrawer"></router-view>
         <!-- <BeforeLogin></BeforeLogin> -->
@@ -290,37 +290,31 @@ html::-webkit-scrollbar {
   width: 5px;
   height: 8px;
   border: 3px solid #fff;
-  display: none !important; /* Chrome, Safari, Opera*/
+  display: none !important;
 }
 body{
 cursor: url('assets/cursor-default.png'), default;
 }
-/* ::-webkit-scrollbar {
-  width: 5px;
-  height: 8px;
-  border: 3px solid #fff;} */
-::-webkit-scrollbar-button:start:decrement, ::-webkit-scrollbar-button:end:increment {
-  display: block;
-  height: 10px;
-  background: grey;
-  border-radius: 3px;
-  }
-::-webkit-scrollbar-track {
-  background: #efefef;
-  border-radius: 10px;
-  border-radius:10px;
-  box-shadow: inset 0 0 4px rgba(0,0,0,.2);
-  }
-
-::-webkit-scrollbar-thumb {
-  height: 50px;
-  width: 50px;
-  background: rgba(0,0,0,.2);
-  border-radius: 8px;
-  border-radius: 8px;
-  box-shadow: inset 0 0 4px rgba(0,0,0,.1);
-  }
-
+.scroll{
+  overflow: scroll;
+}
+.scroll::-webkit-scrollbar {
+    width: 10px;
+    height: 0px;
+    background-color: transparent;
+}
+.scroll::-webkit-scrollbar-corner {
+    background-color: transparent;
+    border-color: transparent;
+}
+.scroll::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #0000003d;
+}
+.scroll::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background-color: transparent;
+}
 .selophan{
   opacity:0.6;
   background-color: black;

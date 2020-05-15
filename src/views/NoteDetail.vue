@@ -1,5 +1,6 @@
 <template>
-      <v-layout fill-height column :class="this.note.color" style="position:static !important;">
+      <v-layout fill-height column :class="this.note.color" style="position:static !important;
+      ">
 <!-- 드로어 부분! -->
     <v-navigation-drawer
       v-model="RightDrawer"
@@ -19,9 +20,11 @@
               @click=""
               >mdi-chevron-left</v-icon>
 
-              <v-chip :color="randomColor()" dark>
+              <v-chip dark>
+                <!-- color="primary"  -->
                 <v-icon small class="mr-2">mdi-eye</v-icon>
                 <small>카드로 보기</small>
+                <!-- 카드로 보기와 글로 보기가 있음 -->
                 </v-chip>
               <v-icon
               dark
@@ -31,30 +34,55 @@
           </v-list-item-content>
         </v-list-item>
 <!-- 드로워 컴포넌트 -->
+    <v-btn-toggle v-model="SideToggle" dense>
+          <v-btn value="wizet">
+          위젯
+          </v-btn>
+          <v-btn value="category">
+          카테고리
+          </v-btn>
+          </v-btn-toggle>
 
+          <v-layout column :class="SideToggle=='category'? 'scroll':''" style="max-height:calc(100% - 84px);">
+          <template v-if="SideToggle=='wizet'">
           <scheduler></scheduler>
         <v-divider></v-divider>
           <hotline></hotline>
         <v-divider></v-divider>
           <tagfilter></tagfilter>
         <v-divider></v-divider>
+          </template>
 
+          <template v-else>
+            <template v-for="item in this.cards">
+              <v-card :key="item.postIndex" :color="item.postColor" @click="showModal(item)" tile>
+                <v-card-title>{{item.postTitle}}</v-card-title>
+                <!-- <v-card-subtitle>{{item.postSubtitle}}</v-card-subtitle> -->
+                <!-- <v-card-text>{{filterContents(item)}}</v-card-text> -->
+              </v-card>
+            </template>
+          </template>
+
+          </v-layout>
 <!-- 드로워 컴포넌트 -->
       </v-list>
     </v-navigation-drawer>
 
           <!-- 보드타이틀 툴바 -->
-    <v-layout style="max-height:fit-content;">
+    <!-- <v-layout style="max-height:fit-content; position:fixed;"> -->
       <v-toolbar class="white--text black selophan" dense flat
+      style="position:fixed; width:100%; z-index:2;"
       >
         <span>{{NoteTitle}}</span>
         <v-spacer></v-spacer>
         <v-btn dark text fab x-small
         ><v-icon>mdi-menu-up</v-icon></v-btn>
       </v-toolbar>
-      </v-layout>
+      <!-- </v-layout> -->
 <!-- 드로어 툴바 -->
-      <v-toolbar color="transparent" flat max-height="fit-content">
+      <v-toolbar color="transparent" flat absolute max-height="fit-content"
+      style="top:48px; width:100%;">
+      <!--  position:fixed; z-index:10;-->
       {{NoteDes}}
       <v-spacer></v-spacer>
 
@@ -84,8 +112,8 @@
       <!-- 삭제/수정 버튼 툴바란 -->
       </v-toolbar>
 
-    <v-layout class="px-3" fill-height>
-    <v-layout style="flex-wrap: wrap; min-width:190px; max-width:190px;">
+    <v-layout class="pl-3" style="max-height: calc(100% - 112px); position: absolute; top:112px;">
+    <v-layout style="flex-wrap: wrap; min-width:190px; max-width:190px; max-height:100px;">
       <!--카드 생성 버튼 -->
       <v-hover
       v-slot:default="{ hover }"
@@ -106,8 +134,12 @@
       <!-- 카드 생성 버튼 끝 -->
     </v-layout>
 
-    <v-layout class="pl-0"
+<!--     max-height: 793px;
+100%- 176
+    overflow: auto;calc(100% - 176px); -->
+    <v-layout class="pl-0 scroll"
     style="flex-wrap: wrap !important; align-content: flex-start;
+    max-height: 100%;
     justify-content: flex-start;">
           <!-- 신규 생성되는 구간 -->
       <template class="card-zone"
@@ -213,8 +245,10 @@ export default {
     this.note.color = sessionStorage.getItem('anColor')
     // this.user.icon = this.randomAvatar()
   },
+
   data () {
     return {
+      SideToggle: 'wizet',
       note: {
         color: 'grey',
         icon: 'mdi-cupcake'
@@ -237,6 +271,11 @@ export default {
       editCard: {},
       ModalCase: '',
       EditedTitle: 'New Card'
+    }
+  },
+  watch: {
+    SideToggle: function () {
+
     }
   },
   methods: {
@@ -465,8 +504,7 @@ export default {
       })
     }
   },
-  watch: {
-  },
+
   beforeDestroy () {
     // sessionStorage.removeItem('activeNote')
     // sessionStorage.removeItem('anTitle')
