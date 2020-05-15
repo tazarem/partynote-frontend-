@@ -34,23 +34,30 @@
           </v-list-item-content>
         </v-list-item>
 <!-- 드로워 컴포넌트 -->
-    <v-btn-toggle v-model="SideToggle" dense>
+    <v-btn-toggle v-model="SideToggle" dense tile group color="teal accent-5">
           <v-btn value="wizet">
-          위젯
+          Widzet
           </v-btn>
           <v-btn value="category">
-          카테고리
+          List
           </v-btn>
           </v-btn-toggle>
-
-          <v-layout column :class="SideToggle=='category'? 'scroll':''" style="max-height:calc(100% - 84px);">
+          <v-layout column :class="SideToggle=='category'? 'scroll2':'scroll'" style="max-height:calc(100% - 92px);">
           <template v-if="SideToggle=='wizet'">
-          <scheduler></scheduler>
+          <v-btn color="secondary" tile dark
+          @click=""
+          >
+          <v-icon>mdi-plus</v-icon> 위젯 추가..
+          </v-btn>
+          <template>
+            <!-- 여기다가 사용자가 위젯을 추가해야함. -->
+          </template>
+          <!-- <scheduler></scheduler>
         <v-divider></v-divider>
           <hotline></hotline>
         <v-divider></v-divider>
           <tagfilter></tagfilter>
-        <v-divider></v-divider>
+        <v-divider></v-divider> -->
           </template>
 
           <template v-else>
@@ -61,6 +68,9 @@
                 <!-- <v-card-text>{{filterContents(item)}}</v-card-text> -->
               </v-card>
             </template>
+            <v-btn fab absolute small bottom right class="mb-6 black" style="opacity: 0.57; z-index:5;">
+              <v-icon color="white">mdi-chevron-up</v-icon>
+            </v-btn>
           </template>
 
           </v-layout>
@@ -506,6 +516,13 @@ export default {
   },
 
   beforeDestroy () {
+    // 포스트인덱스 새로 for로 업데이트 쳐서 인덱스 axios 시켜야함
+    const cards = this.cards
+    for (const i in cards) {
+      cards[i].postIndex = i
+    }
+    console.log(cards)
+    //axios.updateIndex 등
     // sessionStorage.removeItem('activeNote')
     // sessionStorage.removeItem('anTitle')
     // sessionStorage.removeItem('anDes')

@@ -130,7 +130,6 @@
           <v-list-item-title>다이어리 보기</v-list-item-title>
         </v-list-item>
 
-
       </v-list>
     </v-menu>
 <!-- 메뉴 닫힘 -->
@@ -266,9 +265,12 @@ export default {
       this.user.color = this.randomColor()
     },
     goMain () {
-      const user = this.sessionStorage.getItem('loginUser')
-      if (user) {
+      // console.log(sessionStorage.getItem('loginUser'))
+      const user = sessionStorage.getItem('loginUser')
+      if (user && this.$route.path !== '/noteIndex') {
         this.$router.push('/noteIndex')
+      } else if (this.$route.path === '/noteIndex') {
+
       } else {
         this.$router.push('/')
       }
@@ -296,7 +298,7 @@ body{
 cursor: url('assets/cursor-default.png'), default;
 }
 .scroll{
-  overflow: scroll;
+  overflow: auto;
 }
 .scroll::-webkit-scrollbar {
     width: 10px;
@@ -309,12 +311,33 @@ cursor: url('assets/cursor-default.png'), default;
 }
 .scroll::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    background-color: #0000003d;
+    background-color: #0000007e;
 }
 .scroll::-webkit-scrollbar-track {
     border-radius: 10px;
     background-color: transparent;
 }
+
+.scroll2{
+  overflow:auto;
+}
+.scroll2::-webkit-scrollbar {
+    width: 10px;
+    height: 0px;
+    background-color: transparent;
+}
+.scroll2::-webkit-scrollbar-corner {
+    background-color: transparent;
+    border-color: transparent;
+}
+.scroll2::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #0000007e;
+}
+.scroll2::-webkit-scrollbar-track {
+    background-color: #0000002f;
+}
+
 .selophan{
   opacity:0.6;
   background-color: black;
