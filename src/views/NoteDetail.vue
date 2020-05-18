@@ -95,22 +95,46 @@
       <!--  position:fixed; z-index:10;-->
       {{NoteDes}}
       <v-spacer></v-spacer>
-
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
         <v-btn fab small dark depressed class="mr-2"
+        v-on="on"
+        :style="toggleMode==='book'? 'opacity:1;':'opacity:0.57;'"
+        :color="toggleMode==='book'? 'green':'black'"
+        @click="toggleMode==='book'? toggleMode='default':toggleMode='book'"
+        >
+          <v-icon>mdi-book-plus-multiple</v-icon>
+        </v-btn>
+        </template>
+        책 만들기..
+      </v-tooltip>
+
+       <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+        <v-btn fab small dark depressed class="mr-2"
+        v-on="on"
         :style="toggleMode==='edit'? 'opacity:1;':'opacity:0.57;'"
         :color="toggleMode==='edit'? 'warning':'black'"
         @click="toggleMode==='edit'? toggleMode='default':toggleMode='edit'"
         >
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
-
+        </template>
+        글 수정하기..
+       </v-tooltip>
+       <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
         <v-btn fab small dark depressed class="mr-2"
+        v-on="on"
         :style="toggleMode==='delete'? 'opacity:1;':'opacity:0.57;'"
         :color="toggleMode==='delete'? 'error':'black'"
         @click="toggleMode==='delete'?toggleMode='default':toggleMode='delete'"
         >
           <v-icon>mdi-delete</v-icon>
         </v-btn>
+        </template>
+        글 삭제
+       </v-tooltip>
 
         <v-btn fab small dark depressed color="black"
         style="opacity:0.57;"
@@ -236,18 +260,16 @@
 
 <script>
 import Modal from '../components/modal.vue'
-import Scheduler from '../components/drawercomp/scheduler'
-import Hotline from '../components/drawercomp/hotline'
-import Tagfilter from '../components/drawercomp/tagfilter'
+// import Scheduler from '../components/drawercomp/scheduler'
+// import Hotline from '../components/drawercomp/hotline'
+// import Tagfilter from '../components/drawercomp/tagfilter'
 import axios from 'axios'
 export default {
   components: {
-    Modal,
-    // BeforeLogin,
-    // Login,
-    Scheduler,
-    Hotline,
-    Tagfilter
+    Modal
+    // Scheduler,
+    // Hotline,
+    // Tagfilter
   },
   created () {
     // 유저 정보 불러오기. axios를 이용하여 다이어리와 포스트를 불러와 백엔드와 통신.
@@ -522,7 +544,7 @@ export default {
       cards[i].postIndex = i
     }
     console.log(cards)
-    //axios.updateIndex 등
+    // axios.updateIndex 등
     // sessionStorage.removeItem('activeNote')
     // sessionStorage.removeItem('anTitle')
     // sessionStorage.removeItem('anDes')
