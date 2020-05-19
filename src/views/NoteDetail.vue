@@ -177,12 +177,48 @@
     justify-content: flex-start;">
           <!-- 신규 생성되는 구간 -->
       <template class="card-zone"
-      v-for="(card , index) in this.cards"
+      v-for="(book, index) in this.books"
       >
       <v-hover
       v-slot:default="{ hover }"
       :key="index"
       >
+      <v-card
+      class="pa-3 mr-3 mb-2 card-posts"
+      :class="nowModes()"
+      width="225"
+      min-height="138"
+      max-height="138"
+      style="overflow:hidden;"
+      height="fit-content"
+      color="brown"
+      flat
+      absolute
+      :elevation="hover? 10:3"
+      :id="index"
+      :key="index"
+      @click=""
+      @dragstart="cardDragStart"
+      @dragend="cardDragEnd"
+      @dragover="allowCardDrop"
+      @drop="dropCard"
+      :draggable="toggleMode==='default'||toggleMode==='book'? true:false"
+      >
+      <span style="font-weight-black">{{ book.bookTitle }}</span>
+      (책)
+      </v-card>
+      </template>
+      <template class="card-zone"
+      v-for="(card , index) in this.cards"
+      >
+
+      <!--떠오르는 이펙트를 위한 v-hover -->
+      <v-hover
+      v-slot:default="{ hover }"
+      :key="index"
+      >
+      <!--떠오르는 이펙트를 위한 v-hover -->
+
       <v-card
       class="pa-3 mr-3 mb-2 card-posts"
       :class="nowModes()"
@@ -205,7 +241,7 @@
       :draggable="toggleMode==='default'||toggleMode==='book'? true:false"
       >
       <!--
-        max-width="300"
+      max-width="300"
       max-height="100" -->
         <!-- 카드 -->
         <template>
@@ -238,6 +274,8 @@
       v-on:newcard="createNewCard"
       v-on:close="closeModal"
       v-on:doedit="doEdit"
+      v-on:newbook="makingBook"
+      :bookCards="PagesToCreateBook"
       :editCard="editCard"
       :modalCase="ModalCase"
       :dialog="OpenModal"
@@ -268,6 +306,7 @@ export default {
   created () {
     // 유저 정보 불러오기. axios를 이용하여 다이어리와 포스트를 불러와 백엔드와 통신.
     this.bringPosts()
+    this.bringBooks()
     this.note.color = sessionStorage.getItem('anColor')
     // this.user.icon = this.randomAvatar()
   },
@@ -280,6 +319,8 @@ export default {
         icon: 'mdi-cupcake'
       },
       cards: [],
+      books: [],
+      PagesToCreateBook: {},
       thisNoteCode: this.$route.params.noteCode,
       NoteTitle: sessionStorage.getItem('anTitle'),
       NoteDes: sessionStorage.getItem('anDes'),
@@ -455,7 +496,7 @@ export default {
       if (this.toggleMode === 'book') {
         console.log('making book')
         // 두 카드가 모두 booked로 바뀌어야함. zone은 책의 첫 페이지가 된다.
-        this.makingBook(zoneIndex, sortIndex)
+        this.openBookModal(zoneIndex, sortIndex)
       } else { // 단순 순서 바꾸기
         const temp = this.deepSet(this.cards[sortIndex])
         let newCardsArray = this.deepSet(this.cards)
@@ -464,7 +505,7 @@ export default {
         newCardsArray = await this.indexSetting(newCardsArray, sortIndex, zoneIndex)
         this.cards = newCardsArray
       }
-      // 이 두 개체를 가지고 업데이트를 쳐라!
+      // 이 두 개체를 가지고 업데이트
       // axios.post(map 형태로 이루어진 인덱스 배열 넘겨서 업데이트 치기)
     },
     indexSetting (newArray, sort, zone) {
@@ -472,13 +513,28 @@ export default {
       newArray[zone].postIndex = zone
       return newArray
     },
-    makingBook (firstPage, secondPage) {
+    openBookModal (firstPage, secondPage) {
+      this.ModalCase = 'makebook'
+      this.ModalShow.title = '책 생성'
+      this.PagesToCreateBook = {
+        fp: firstPage,
+        sp: secondPage
+      }
+      this.OpenModal = true
+    },
+    makingBook (bt) {
+      // 제목설정 모달창 띄워주고 텍스트 입력하고 확인 누르면
       axios.post('/partynote/makeBook', {
-        fp: this.cards[firstPage],
-        sp: this.cards[secondPage]
+        fp: this.cards[this.PagesToCreateBook.fp],
+        sp: this.cards[this.PagesToCreateBook.sp],
+        bookTitle: bt,
+        bookPage: 2
+
       }).then((res) => {
         console.log(res)
       })
+      // axios 요청
+      // bookcard 객체 만들어서 넘기기
     },
     addBookPage (bookIndex, inputPage) {
 
@@ -536,9 +592,15 @@ export default {
       return `${colors[colorCase]} ${brighten[brightCase]}`
     },
     bringPosts () {
-      axios.post('/partynote/bringPost', this.thisNoteCode).then((req) => {
-        console.log(req.data)
-        this.cards = req.data
+      axios.post('/partynote/bringPost', this.thisNoteCode).then((res) => {
+        console.log(res.data)
+        this.cards = res.data
+      })
+    },
+    bringBooks () {
+      axios.post('/partynote/bringBook', this.thisNoteCode).then((res) => {
+        console.log(res.data)
+        this.books = res.data
       })
     }
   },

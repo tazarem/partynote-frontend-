@@ -63,31 +63,31 @@
                   >
                   </v-text-field>
   <!-- height:550 -->
-  <DxHtmlEditor
-    :media-resizing="enabled"
-    :height="550"
-    v-model="Card.postContents"
-  >
-    <DxToolbar>
-      <DxItem format-name="undo"/>
-      <DxItem format-name="redo"/>
-      <DxItem
-        :format-values="sizeValues"
-        format-name="size"
-      />
-      <!-- <DxItem format-name="separator"/> -->
-      <DxItem format-name="bold"/>
-      <DxItem format-name="italic"/>
-      <!-- <DxItem format-name="separator"/> -->
-      <DxItem format-name="alignLeft"/>
-      <DxItem format-name="alignCenter"/>
-      <DxItem format-name="alignRight"/>
-      <DxItem format-name="alignJustify"/>
-    </DxToolbar>
+                  <DxHtmlEditor
+                    :media-resizing="enabled"
+                    :height="550"
+                    v-model="Card.postContents"
+                  >
+                    <DxToolbar>
+                      <DxItem format-name="undo"/>
+                      <DxItem format-name="redo"/>
+                      <DxItem
+                        :format-values="sizeValues"
+                        format-name="size"
+                      />
+                      <!-- <DxItem format-name="separator"/> -->
+                      <DxItem format-name="bold"/>
+                      <DxItem format-name="italic"/>
+                      <!-- <DxItem format-name="separator"/> -->
+                      <DxItem format-name="alignLeft"/>
+                      <DxItem format-name="alignCenter"/>
+                      <DxItem format-name="alignRight"/>
+                      <DxItem format-name="alignJustify"/>
+                    </DxToolbar>
 
-    <div v-html="this.Card.postContents" >
-    </div>
-  </DxHtmlEditor>
+                    <div v-html="this.Card.postContents" >
+                    </div>
+                  </DxHtmlEditor>
 
                   <!-- <v-textarea
                     filled
@@ -105,7 +105,18 @@
               </v-layout>
               <span v-if="modalCase === 'delete'">정말 이 카드를 삭제할까요?</span>
               <!-- 카드생성이 아닐 때 포스트 호출 부분 -->
+
+              <!--책 제작 부분-->
+                  <v-text-field v-if="modalCase==='makebook'"
+                  label="제목"
+                  v-model="bookTitle"
+                  :rules="requiredRules"
+                  required
+                  counter="12"
+                  ></v-text-field>
+              <!-- 책 제작 부분 -->
               </v-card-text>
+
               <v-divider></v-divider>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -129,6 +140,13 @@
             <v-btn color="error" depressed v-if="modalCase==='edit'" @click="doEditPost">
               수정
             </v-btn>
+            <template v-if="modalCase==='makebook'">
+              <v-btn class="font-weight-bold" dark depressed color="brown"
+              @click="makeBook"
+              >
+                책 만들기..
+              </v-btn>
+            </template>
             <v-btn
             color="secondary darken-1"
             class="font-weight-bold"
@@ -153,7 +171,7 @@ export default {
       this.Card = this.editCard
     }
   },
-  props: ['dialog', 'modalCase', 'editCard'],
+  props: ['dialog', 'modalCase', 'editCard', 'bookCards'],
   // book일 때에는 모달케이스에서 넘겨주면 댐.
   components: {
     DxHtmlEditor,
@@ -166,7 +184,7 @@ export default {
       requiredRules: [
         v => !!v || '필수입니다.'
       ],
-
+      bookTitle: '',
       sizeValues: ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'],
       fontValues: ['Arial', 'Courier New', 'Georgia', 'Impact', 'Lucida Console', 'Tahoma', 'Times New Roman', 'Verdana'],
       headerValues: [false, 1, 2, 3, 4, 5],
@@ -188,6 +206,9 @@ export default {
     }
   },
   methods: {
+    makeBook () {
+      this.$emit('newbook', this.bookTitle)
+    },
     newCard () {
       this.$emit('newcard', this.Card)
     },
