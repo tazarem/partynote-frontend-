@@ -202,7 +202,7 @@
       @dragend="cardDragEnd"
       @dragover="allowCardDrop"
       @drop="dropCard"
-      :draggable="toggleMode==='default'? true:false"
+      :draggable="toggleMode==='default'||toggleMode==='book'? true:false"
       >
       <!--
         max-width="300"
@@ -260,16 +260,10 @@
 
 <script>
 import Modal from '../components/modal.vue'
-// import Scheduler from '../components/drawercomp/scheduler'
-// import Hotline from '../components/drawercomp/hotline'
-// import Tagfilter from '../components/drawercomp/tagfilter'
 import axios from 'axios'
 export default {
   components: {
     Modal
-    // Scheduler,
-    // Hotline,
-    // Tagfilter
   },
   created () {
     // 유저 정보 불러오기. axios를 이용하여 다이어리와 포스트를 불러와 백엔드와 통신.
@@ -318,6 +312,8 @@ export default {
           return 'editMode' }
         case 'delete': {
           return 'deleteMode' }
+        case 'book': {
+          return 'bookMode' }
         default: {
           return 'defaultMode' }
       }
@@ -337,7 +333,7 @@ export default {
           const answer = confirm('정말 이 카드를 삭제할까요?')
           if (answer) {
             console.log('delete this : ' + card.postCode) // 노트를 삭제. disable 처리하기. (하위 항목은 전부 지울까?)
-            axios.post('http://localhost:9000/partynote/deletePost', card).then((req) => {
+            axios.post('/partynote/deletePost', card).then((req) => {
               console.log('delete : ' + req)
               // 다시 불러오기
               this.bringPosts()
@@ -349,7 +345,7 @@ export default {
     },
     doEdit (card) {
       console.log(card)
-      axios.post('http://localhost:9000/partynote/editPost', card).then((req) => {
+      axios.post('/partynote/editPost', card).then((req) => {
         this.bringPosts()
       })
     },
@@ -375,7 +371,7 @@ export default {
       newCard.postIndex = this.cards.length
       console.log(newCard)
       // 최근 것의 인덱스를 가져와서 +1 을 해서 속성부여한다.
-      axios.post('http://localhost:9000/partynote/makePost', newCard).then((req) => {
+      axios.post('/partynote/makePost', newCard).then((req) => {
         this.bringPosts()
       })
       // this.cards.splice(0, 0, newCard) // 최신 포스트가 앞에 들어감
@@ -441,34 +437,33 @@ export default {
       }, 0)
     },
     cardDragEnd (e) {
-      // axios요청으로 동기화시켜야함
-      // axios.연속업데이트 index목록 배열형태
       setTimeout(() => {
         e.target.style.opacity = 1
       }, 0)
-      console.log(this.cards)
+      // console.log(this.cards)
     },
     deepSet (obj) {
       return JSON.parse(JSON.stringify(obj))
     },
     // 드래그앤 드랍 존
     allowCardDrop (e) {
-      console.log('allow card drop.')
       e.preventDefault()
     },
     async dropCard (e) {
-      // 포인터 때문에 데이터 유실이 있는데 배열리턴을 받아야할것 같음.
       const zoneIndex = this.deepSet(e.target.id)
-      const sortIndex = this.deepSet(e.dataTransfer.getData('text')) // 변환시킬 개체의 순서
-      const temp = this.deepSet(this.cards[sortIndex])
-      let newCardsArray = this.deepSet(this.cards)
-      // set Index
-      await newCardsArray.splice(sortIndex, 1, this.cards[zoneIndex])
-      await newCardsArray.splice(zoneIndex, 1, temp)
-
-      newCardsArray = await this.indexSetting(newCardsArray, sortIndex, zoneIndex)
-
-      this.cards = newCardsArray
+      const sortIndex = this.deepSet(e.dataTransfer.getData('text')) // zone인덱스만 남고
+      if (this.toggleMode === 'book') {
+        console.log('making book')
+        // 두 카드가 모두 booked로 바뀌어야함. zone은 책의 첫 페이지가 된다.
+        this.makingBook(zoneIndex, sortIndex)
+      } else { // 단순 순서 바꾸기
+        const temp = this.deepSet(this.cards[sortIndex])
+        let newCardsArray = this.deepSet(this.cards)
+        await newCardsArray.splice(sortIndex, 1, this.cards[zoneIndex])
+        await newCardsArray.splice(zoneIndex, 1, temp)
+        newCardsArray = await this.indexSetting(newCardsArray, sortIndex, zoneIndex)
+        this.cards = newCardsArray
+      }
       // 이 두 개체를 가지고 업데이트를 쳐라!
       // axios.post(map 형태로 이루어진 인덱스 배열 넘겨서 업데이트 치기)
     },
@@ -476,6 +471,17 @@ export default {
       newArray[sort].postIndex = sort
       newArray[zone].postIndex = zone
       return newArray
+    },
+    makingBook (firstPage, secondPage) {
+      axios.post('/partynote/makeBook', {
+        fp: this.cards[firstPage],
+        sp: this.cards[secondPage]
+      }).then((res) => {
+        console.log(res)
+      })
+    },
+    addBookPage (bookIndex, inputPage) {
+
     },
     filterContents (card) {
       const deleteTags = card.postContents.replace(/(<([^>]+)>)/ig, '')
@@ -530,7 +536,7 @@ export default {
       return `${colors[colorCase]} ${brighten[brightCase]}`
     },
     bringPosts () {
-      axios.post('http://localhost:9000/partynote/bringPost', this.thisNoteCode).then((req) => {
+      axios.post('/partynote/bringPost', this.thisNoteCode).then((req) => {
         console.log(req.data)
         this.cards = req.data
       })
