@@ -171,42 +171,22 @@
 <!--     max-height: 793px;
 100%- 176
     overflow: auto;calc(100% - 176px); -->
-    <v-layout class="pl-0 scroll"
-    style="flex-wrap: wrap !important; align-content: flex-start;
-    max-height: 100%;
-    justify-content: flex-start;">
+      <v-layout class="pl-0 scroll"
+      style="flex-wrap: wrap !important; align-content: flex-start;
+      max-height: 100%;
+      justify-content: flex-start;">
           <!-- 신규 생성되는 구간 -->
-      <template class="card-zone"
-      v-for="(book, index) in this.books"
-      >
-      <v-hover
-      v-slot:default="{ hover }"
-      :key="index"
-      >
-      <v-card
-      class="pa-3 mr-3 mb-2 card-posts"
-      :class="nowModes()"
-      width="225"
-      min-height="138"
-      max-height="138"
-      style="overflow:hidden;"
-      height="fit-content"
-      color="brown"
-      flat
-      absolute
-      :elevation="hover? 10:3"
-      :id="index"
-      :key="index"
-      @click=""
-      @dragstart="cardDragStart"
-      @dragend="cardDragEnd"
-      @dragover="allowCardDrop"
-      @drop="dropCard"
-      :draggable="toggleMode==='default'||toggleMode==='book'? true:false"
-      >
-      <span style="font-weight-black">{{ book.bookTitle }}</span>
-      (책)
-      </v-card>
+      <template v-for="(book,index) in this.books">
+        <v-card :key="index"
+        class="pa-3 mr-3 mb-2"
+        width="225"
+        min-height="138"
+        max-height="138"
+        tile
+        color="brown lighten-2"
+        >
+        {{book.bookTitle}}
+        </v-card>
       </template>
       <template class="card-zone"
       v-for="(card , index) in this.cards"
@@ -525,8 +505,8 @@ export default {
     makingBook (bt) {
       // 제목설정 모달창 띄워주고 텍스트 입력하고 확인 누르면
       axios.post('/partynote/makeBook', {
-        fp: this.cards[this.PagesToCreateBook.fp],
-        sp: this.cards[this.PagesToCreateBook.sp],
+        posts: [this.cards[this.PagesToCreateBook.fp],
+          this.cards[this.PagesToCreateBook.sp]],
         bookTitle: bt,
         bookPage: 2
 
@@ -598,7 +578,8 @@ export default {
       })
     },
     bringBooks () {
-      axios.post('/partynote/bringBook', this.thisNoteCode).then((res) => {
+      axios.post('/partynote/bringBooks', this.thisNoteCode).then((res) => {
+        console.log('bringBooks')
         console.log(res.data)
         this.books = res.data
       })
