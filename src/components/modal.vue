@@ -7,8 +7,9 @@
         </template> -->
 
         <!-- 성질이 book일 때 다음 포스트로 이동 -->
-        <template v-if="PostPagenationActive">
+        <template v-if="this.modalCase=='book'">
         <v-btn text fab absolute style="top:50%; right:66.5%;" class="my-auto"
+        :color="pageIndex==0? 'grey':''"
         @click="showPrevPost">
         <!-- 북의 목차 0번째일때는 보이지 않는다 -->
           <v-icon>
@@ -16,7 +17,9 @@
           </v-icon>
         </v-btn>
         <v-btn text fab absolute style="top:50%; left:66.5%;" class="my-auto"
-        @click="showNextPost">
+        @click="showNextPost"
+        :color="pageIndex+1==bookPages.length? 'grey':''"
+        >
         <!-- 북의 포스트 중 마지막 포스트일때에는 보이지 않는다. -->
           <v-icon>
             mdi-chevron-right
@@ -28,6 +31,17 @@
         <v-card tile min-height="500px" height="50%">
           <!-- <v-card-title> -->
         <v-toolbar flat max-height="64px" color="transparent">
+                <template v-if="modalCase==='book'">
+                <v-sheet style="height:100%; width:5px; position:absolute; left:0;"
+                :color="showPage.postColor"
+                ></v-sheet>
+                  <span class="title font-weight-black">{{bookTitle}}</span><!--책 제목-->
+                  <span class="ml-2">{{showPage.postTitle}}</span><!--게시물 제목-->
+                  <v-spacer></v-spacer>
+                  </template>
+                <template v-else>
+
+
                 <span class="headline"><slot name="header"></slot></span>
                 <v-spacer></v-spacer>
                 <v-layout  column class="align-end mr-2" style="max-width: fit-content">
@@ -37,6 +51,7 @@
                 ></slot>
                 </small>
                 </v-layout>
+                </template>
                 <v-btn fab text small @click="closeModal"><v-icon>mdi-close</v-icon></v-btn>
         </v-toolbar>
           <!-- </v-card-title> -->
@@ -100,8 +115,9 @@
               </v-form>
               <!-- 카드생성이 아닐 때 포스트 호출 부분 -->
               <v-layout column>
-              <span class="font-weight-bold mb-3"><slot name="subtitle"></slot></span>
+              <span class="font-weight-bold mb-3"><slot name="subtitle"></slot> {{showPage.postSubtitle}}</span>
               <slot name="contents"></slot>
+              <span v-html="showPage.postContents"></span>
               </v-layout>
               <span v-if="modalCase === 'delete'">정말 이 카드를 삭제할까요?</span>
               <!-- 카드생성이 아닐 때 포스트 호출 부분 -->
@@ -119,6 +135,12 @@
 
               <v-divider></v-divider>
           <v-card-actions>
+            <template v-if="modalCase==='book'">
+              <v-layout class="d-flex justify-center align-center">
+              <small>{{pageIndex+1}}/{{bookPages.length}}</small>
+              </v-layout>
+            </template>
+            <template v-else>
             <v-spacer></v-spacer>
             <!-- 생성 모드일 때의 버튼 -->
             <template v-if="modalCase==='create'">
@@ -154,6 +176,7 @@
             dark
             @click="closeModal"
             >닫기</v-btn>
+            </template>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -169,9 +192,11 @@ export default {
   created () {
     if (this.modalCase === 'edit') {
       this.Card = this.editCard
+    } else if (this.modalCase === 'book') {
+      this.showPage = this.bookPages[0]
     }
   },
-  props: ['dialog', 'modalCase', 'editCard', 'bookCards'],
+  props: ['dialog', 'modalCase', 'editCard', 'bookPages', 'bookTitle'],
   // book일 때에는 모달케이스에서 넘겨주면 댐.
   components: {
     DxHtmlEditor,
@@ -184,13 +209,14 @@ export default {
       requiredRules: [
         v => !!v || '필수입니다.'
       ],
-      bookTitle: '',
       sizeValues: ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'],
       fontValues: ['Arial', 'Courier New', 'Georgia', 'Impact', 'Lucida Console', 'Tahoma', 'Times New Roman', 'Verdana'],
       headerValues: [false, 1, 2, 3, 4, 5],
       enabled: {
         enabled: true
       },
+      pageIndex: 0,
+      showPage: {},
       parsedText: '',
       Card: {
         // postCode: '',
@@ -200,12 +226,27 @@ export default {
         postColor: '',
         postIndex: '',
         date: ''
-      },
+      }
       // post
-      PostPagenationActive: false
     }
   },
   methods: {
+    showPrevPost () { // 0이면
+      if (this.pageIndex === 0) {
+
+      } else {
+        this.pageIndex = this.pageIndex - 1
+        this.showPage = this.bookPages[this.pageIndex]
+      }
+    },
+    showNextPost () { // length-1면
+      if (this.pageIndex === this.bookPages.length - 1) {
+
+      } else {
+        this.pageIndex = this.pageIndex + 1
+        this.showPage = this.bookPages[this.pageIndex]
+      }
+    },
     makeBook () {
       this.$emit('newbook', this.bookTitle)
     },

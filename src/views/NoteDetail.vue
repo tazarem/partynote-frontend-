@@ -178,14 +178,19 @@
           <!-- 신규 생성되는 구간 -->
       <template v-for="(book,index) in this.books">
         <v-card :key="index"
-        class="pa-3 mr-3 mb-2"
+        class="px-3 pt-3 pb-0 mr-3 mb-2"
         width="225"
         min-height="138"
         max-height="138"
-        tile
-        color="brown lighten-2"
+        color="primary"
+        @click="openBook(book)"
         >
-        {{book.bookTitle}}
+        <span class="white--text">{{book.bookTitle}}</span>
+        <v-divider></v-divider>
+        <small style="position:absolute; right:10px; bottom:10px;" class="white--text">
+          <span>{{book.bookPage}}page</span>
+          <v-icon color="white">mdi-book</v-icon>
+        </small>
         </v-card>
       </template>
       <template class="card-zone"
@@ -255,7 +260,8 @@
       v-on:close="closeModal"
       v-on:doedit="doEdit"
       v-on:newbook="makingBook"
-      :bookCards="PagesToCreateBook"
+      :bookPages="showBook"
+      :bookTitle="showBookTitle"
       :editCard="editCard"
       :modalCase="ModalCase"
       :dialog="OpenModal"
@@ -300,6 +306,8 @@ export default {
       },
       cards: [],
       books: [],
+      showBookTitle:'',
+      showBook:[],
       PagesToCreateBook: {},
       thisNoteCode: this.$route.params.noteCode,
       NoteTitle: sessionStorage.getItem('anTitle'),
@@ -451,7 +459,7 @@ export default {
     },
     // 드래그앤 드랍 개체의 함수
     cardDragStart (e) {
-      const objid = this.deepSet(e.target.id)
+      const objid = this.deepSet(e.target.id) //index
       e.dataTransfer.setData('text', objid)
       setTimeout(() => {
         e.target.style.opacity = 0
@@ -475,8 +483,10 @@ export default {
       const sortIndex = this.deepSet(e.dataTransfer.getData('text')) // zone인덱스만 남고
       if (this.toggleMode === 'book') {
         console.log('making book')
-        // 두 카드가 모두 booked로 바뀌어야함. zone은 책의 첫 페이지가 된다.
+        //case 1 : 카드랑 카드일 때
         this.openBookModal(zoneIndex, sortIndex)
+        //case 2: 책에 카드를 넣을 떄
+        //add One more Page
       } else { // 단순 순서 바꾸기
         const temp = this.deepSet(this.cards[sortIndex])
         let newCardsArray = this.deepSet(this.cards)
@@ -502,6 +512,12 @@ export default {
       }
       this.OpenModal = true
     },
+    openBook (bookItem) {
+      this.showBook = bookItem.posts
+      this.ModalCase='book'
+      this.showBookTitle=bookItem.bookTitle
+      this.OpenModal = true
+    },
     makingBook (bt) {
       // 제목설정 모달창 띄워주고 텍스트 입력하고 확인 누르면
       axios.post('/partynote/makeBook', {
@@ -512,6 +528,9 @@ export default {
 
       }).then((res) => {
         console.log(res)
+        this.OpenModal = false
+        this.bringPosts()
+        this.bringBooks()
       })
       // axios 요청
       // bookcard 객체 만들어서 넘기기
@@ -593,6 +612,9 @@ export default {
       cards[i].postIndex = i
     }
     console.log(cards)
+    axios.post('/partynote/updatePostIndex', cards).then((res) => {
+      console.log(res.data.answer)
+    })
     // axios.updateIndex 등
     // sessionStorage.removeItem('activeNote')
     // sessionStorage.removeItem('anTitle')

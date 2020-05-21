@@ -70,7 +70,8 @@
     </template>
     <!-- 기존 목록의 노트들을 불러오는 구간  v-if="toggleMode!=='delete'"-->
 </v-layout>
-<modal :dialog="Modal" v-on:close="closeModal">
+<modal :dialog="Modal"
+ v-on:close="closeModal">
   <template v-slot:header>
     <span v-if="toggleMode==='default'">새 노트 만들기..</span>
      <span v-else-if="toggleMode==='edit'">수정하기</span>
