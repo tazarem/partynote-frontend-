@@ -177,18 +177,22 @@
       justify-content: flex-start;">
           <!-- 신규 생성되는 구간 -->
       <template v-for="(book,index) in this.books">
-        <v-card :key="index"
+        <v-card :key="book.bookCode"
         class="px-3 pt-3 pb-0 mr-3 mb-2"
         width="225"
         min-height="138"
         max-height="138"
         color="primary"
+        :id="book.bookCode+index"
+        @dragend="cardDragEnd"
+        @dragover="allowCardDrop"
+        @drop="dropCard"
         @click="openBook(book)"
         >
         <span class="white--text">{{book.bookTitle}}</span>
         <v-divider></v-divider>
         <small style="position:absolute; right:10px; bottom:10px;" class="white--text">
-          <span>{{book.bookPage}}page</span>
+          <span>{{book.bookPage+1}}page</span>
           <v-icon color="white">mdi-book</v-icon>
         </small>
         </v-card>
@@ -216,8 +220,8 @@
       flat
       absolute
       :elevation="hover? 10:3"
-      :id="index"
-      :key="index"
+      :id="card.postCode+index"
+      :key="card.postCode"
       @click="toggleMode==='default'?showModal(card):editOrDelete(card)"
       @dragstart="cardDragStart"
       @dragend="cardDragEnd"
@@ -306,8 +310,8 @@ export default {
       },
       cards: [],
       books: [],
-      showBookTitle:'',
-      showBook:[],
+      showBookTitle: '',
+      showBook: [],
       PagesToCreateBook: {},
       thisNoteCode: this.$route.params.noteCode,
       NoteTitle: sessionStorage.getItem('anTitle'),
@@ -459,7 +463,7 @@ export default {
     },
     // 드래그앤 드랍 개체의 함수
     cardDragStart (e) {
-      const objid = this.deepSet(e.target.id) //index
+      const objid = this.deepSet(e.target.id) // index
       e.dataTransfer.setData('text', objid)
       setTimeout(() => {
         e.target.style.opacity = 0
@@ -469,9 +473,8 @@ export default {
       setTimeout(() => {
         e.target.style.opacity = 1
       }, 0)
-      // console.log(this.cards)
     },
-    deepSet (obj) {
+    deepSet (obj) { // 포인터때문에 json 변환 ㅡㅡ;;
       return JSON.parse(JSON.stringify(obj))
     },
     // 드래그앤 드랍 존
@@ -479,14 +482,25 @@ export default {
       e.preventDefault()
     },
     async dropCard (e) {
-      const zoneIndex = this.deepSet(e.target.id)
-      const sortIndex = this.deepSet(e.dataTransfer.getData('text')) // zone인덱스만 남고
+      // splice(0,this.thisNoteCode.length+5) 를 제거하면 인덱스가 남음. 노트코드를 제거한 5글자
+      const a = (this.deepSet(e.target.id))
+      const b = (this.deepSet(e.dataTransfer.getData('text')))
+
+      const zoneIsBook = (a.substring(this.thisNoteCode.length + 1, this.thisNoteCode.length + 2) === 'b')
+      const dragIsBook = (b.substring(this.thisNoteCode.length + 1, this.thisNoteCode.length + 2) === 'b')
+
+      const zoneIndex = a.substring(this.thisNoteCode.length + 5, this.thisNoteCode.length + 6)
+      const sortIndex = b.substring(this.thisNoteCode.length + 5, this.thisNoteCode.length + 6) // zone인덱스만 남고
+      console.log(zoneIndex)
+      console.log(sortIndex)
       if (this.toggleMode === 'book') {
-        console.log('making book')
-        //case 1 : 카드랑 카드일 때
-        this.openBookModal(zoneIndex, sortIndex)
-        //case 2: 책에 카드를 넣을 떄
-        //add One more Page
+        if (zoneIsBook) {
+          console.log('add Book Page')
+          this.addBookPage(b.substring(0, this.thisNoteCode.length + 5), a.substring(0, this.thisNoteCode.length + 5))
+        } else if (zoneIsBook === false && dragIsBook === false) { // 둘다 카드
+          console.log('making book')
+          this.openBookModal(zoneIndex, sortIndex)
+        }
       } else { // 단순 순서 바꾸기
         const temp = this.deepSet(this.cards[sortIndex])
         let newCardsArray = this.deepSet(this.cards)
@@ -514,8 +528,8 @@ export default {
     },
     openBook (bookItem) {
       this.showBook = bookItem.posts
-      this.ModalCase='book'
-      this.showBookTitle=bookItem.bookTitle
+      this.ModalCase = 'book'
+      this.showBookTitle = bookItem.bookTitle
       this.OpenModal = true
     },
     makingBook (bt) {
@@ -535,8 +549,15 @@ export default {
       // axios 요청
       // bookcard 객체 만들어서 넘기기
     },
-    addBookPage (bookIndex, inputPage) {
-
+    addBookPage (pCode, bCode) {
+      console.log('add Page:' + pCode)
+      axios.post('/partynote/addPageToBook', {
+        postCode: pCode,
+        bookCode: bCode
+      }).then((res) => {
+        this.bringPosts()
+        this.bringBooks()
+      })
     },
     filterContents (card) {
       const deleteTags = card.postContents.replace(/(<([^>]+)>)/ig, '')

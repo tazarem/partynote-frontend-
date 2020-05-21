@@ -25,6 +25,11 @@
             mdi-chevron-right
           </v-icon>
         </v-btn>
+        <v-btn absolute max-width="120" style="z-index:30; left:66.5%" color="grey lighten-1"
+        @click=""
+        >
+          목차
+        </v-btn>
         </template>
       <!-- 성질이 book일 때 다음 포스트로 이동 -->
 
