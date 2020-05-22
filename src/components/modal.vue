@@ -263,6 +263,7 @@
           <v-btn style="z-index:30;" depressed fab small
           v-on="on"
           color="warning"
+          @click="releaseBook"
           >
           <v-icon>mdi-book-lock-open</v-icon>
           </v-btn>
@@ -365,6 +366,9 @@ export default {
     },
     deleteBook () {
       this.$emit('deletebook', this.book)
+    },
+    releaseBook () {
+      this.$emit('releasebook', this.book)
     },
     makeBook () {
       this.$emit('newbook', this.bookTitle) //textinput 에서의 v-model booktitle

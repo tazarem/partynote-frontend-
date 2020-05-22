@@ -265,6 +265,7 @@
       v-on:doedit="doEdit"
       v-on:newbook="makingBook"
       v-on:deletebook="deleteBook"
+      v-on:releasebook="releaseBook"
       :book="showBook"
       :bookTitle="showBookTitle"
       :editCard="editCard"
@@ -569,7 +570,14 @@ export default {
     deleteBook (book) {
       console.log(`delete this : ${book.bookCode}`)
       axios.post('/partynote/deleteBook', book).then((res) => {
-        this.OpenModal=false
+        this.OpenModal = false
+        this.bringPosts()
+        this.bringBooks()
+      })
+    },
+    releaseBook (book) {
+      axios.post('/partynote/releaseBook', book).then((res) => {
+        this.OpenModal = false
         this.bringPosts()
         this.bringBooks()
       })
