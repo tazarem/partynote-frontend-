@@ -2,10 +2,6 @@
   <v-dialog v-model="dialog" width="600px" scrollable
   @click:outside="closeModal"
   >
-        <!-- <template v-slot:activator="{ on }">
-          <v-btn color="primary" dark v-on="on">Open Dialog</v-btn>
-        </template> -->
-
         <!-- 성질이 book일 때 다음 포스트로 이동 -->
         <template v-if="this.modalCase=='book'">
         <v-btn text fab absolute style="top:50%; right:66.5%;" class="my-auto"
@@ -18,21 +14,55 @@
         </v-btn>
         <v-btn text fab absolute style="top:50%; left:66.5%;" class="my-auto"
         @click="showNextPost"
-        :color="pageIndex+1==bookPages.length? 'grey':''"
+        :color="pageIndex+1==book.posts.length? 'grey':''"
         >
         <!-- 북의 포스트 중 마지막 포스트일때에는 보이지 않는다. -->
           <v-icon>
             mdi-chevron-right
           </v-icon>
         </v-btn>
-        <v-btn absolute max-width="120" style="z-index:30; left:66.5%" color="grey lighten-1"
-        @click=""
+
+        <v-menu offset-y
+        :close-on-content-click="false"
+        :close-on-click="true"
+        ><!--목차-->
+          <template v-slot:activator="{on}">
+        <v-btn absolute max-width="120" style="z-index:30; left:66.5%" class="font-weight-black"
+        v-on="on"
         >
           목차
         </v-btn>
+          </template>
+          <v-list dense>
+                  <!-- <v-list-item @click="showThisPage(0)">
+                         <v-list-item-title>첫 페이지부터 보기</v-list-item-title>
+                        </v-list-item> -->
+                  <!-- <v-list-item @click="showThisPage(bookMark)">
+                         <v-list-item-title>북마크로 이동</v-list-item-title>
+                        </v-list-item> -->
+            <template v-for="(pageI,index) in book.posts">
+            <v-list-item :key="index" @click="showThisPage(index)">
+                <template v-if="pageIndex==index">
+                <v-sheet style="height:100%; width:5px; position:absolute; left:0;"
+                :color="showPage.postColor"
+                ></v-sheet>
+                </template>
+              <v-list-item-title>
+                {{index+1}}. {{pageI.postTitle}}
+              </v-list-item-title>
+            </v-list-item>
+            <template v-if="index+1==book.posts.length">
+            </template>
+            <template v-else>
+                  <v-divider :key="index"></v-divider>
+            </template>
+            </template>
+
+          </v-list>
+        </v-menu> <!--목차-->
+
         </template>
       <!-- 성질이 book일 때 다음 포스트로 이동 -->
-
         <v-card tile min-height="500px" height="50%">
           <!-- <v-card-title> -->
         <v-toolbar flat max-height="64px" color="transparent">
@@ -40,12 +70,17 @@
                 <v-sheet style="height:100%; width:5px; position:absolute; left:0;"
                 :color="showPage.postColor"
                 ></v-sheet>
-                  <span class="title font-weight-black">{{bookTitle}}</span><!--책 제목-->
+                  <span class="title font-weight-black">{{book.bookTitle}}</span><!--책 제목-->
                   <span class="ml-2">{{showPage.postTitle}}</span><!--게시물 제목-->
                   <v-spacer></v-spacer>
+                  <!-- 북마크 버튼 -->
+                  <v-btn fab small
+                  text :color="thisPageBookmarked? 'error':''">
+                  <v-icon>{{thisPageBookmarked? 'mdi-bookmark':'mdi-bookmark-outline'}}</v-icon>
+                  </v-btn>
                   </template>
+                  <!-- 북마크 버튼 -->
                 <template v-else>
-
 
                 <span class="headline"><slot name="header"></slot></span>
                 <v-spacer></v-spacer>
@@ -142,7 +177,7 @@
           <v-card-actions>
             <template v-if="modalCase==='book'">
               <v-layout class="d-flex justify-center align-center">
-              <small>{{pageIndex+1}}/{{bookPages.length}}</small>
+              <small>{{pageIndex+1}}/{{book.posts.length}}</small>
               </v-layout>
             </template>
             <template v-else>
@@ -184,6 +219,76 @@
             </template>
           </v-card-actions>
         </v-card>
+
+<v-menu offset-y v-if="modalCase==='book'">
+  <template v-slot:activator="{on}" >
+    <v-btn fab small depressed v-on="on" absolute
+    style="left:31.5%;"
+    ><v-icon>mdi-dots-vertical</v-icon></v-btn>
+  </template>
+  <v-col>
+
+        <v-row>
+        <v-tooltip bottom>
+          <template v-slot:activator="{on}"
+          >
+          <v-btn style="z-index:30;" depressed fab small
+          color="primary"
+          v-on="on"
+          >
+          <v-icon>mdi-book-open-page-variant</v-icon>
+          </v-btn>
+          </template>
+          이 책을 워드로 익스포트..
+        </v-tooltip>
+        </v-row>
+        <v-row  class="mt-2">
+        <v-tooltip bottom>
+          <template v-slot:activator="{on}"
+          >
+          <v-btn style="z-index:30;" depressed fab small
+          v-on="on"
+          color="secondary"
+          >
+          <v-icon>mdi-book-minus-multiple</v-icon>
+          </v-btn>
+          </template>
+          책에서 이 페이지 빼기..
+        </v-tooltip>
+      </v-row>
+      <v-row class="mt-2">
+        <v-tooltip bottom>
+          <template v-slot:activator="{on}"
+          >
+          <v-btn style="z-index:30;" depressed fab small
+          v-on="on"
+          color="warning"
+          >
+          <v-icon>mdi-book-lock-open</v-icon>
+          </v-btn>
+          </template>
+          책의 모든 페이지 해제..
+        </v-tooltip>
+        </v-row>
+        <v-row class="mt-2">
+        <v-tooltip bottom>
+          <template v-slot:activator="{on}"
+          >
+          <v-btn style="z-index:30;" depressed fab small
+          v-on="on"
+          color="error"
+          @click="deleteBook"
+          >
+          <v-icon>mdi-book-remove</v-icon>
+          </v-btn>
+          </template>
+          책 삭제
+        </v-tooltip>
+        </v-row>
+
+        </v-col>
+</v-menu>
+
       </v-dialog>
 </template>
 
@@ -198,11 +303,11 @@ export default {
     if (this.modalCase === 'edit') {
       this.Card = this.editCard
     } else if (this.modalCase === 'book') {
-      this.showPage = this.bookPages[0]
+      this.showPage = this.book.posts[0]
     }
   },
-  props: ['dialog', 'modalCase', 'editCard', 'bookPages', 'bookTitle'],
-  // book일 때에는 모달케이스에서 넘겨주면 댐.
+  props: ['dialog', 'modalCase', 'editCard', 'book'],
+  // book에 booktitle과 bookmark를 넘겨주어야 한다.
   components: {
     DxHtmlEditor,
     DxToolbar,
@@ -222,6 +327,8 @@ export default {
       },
       pageIndex: 0,
       showPage: {},
+      bookTitle: '',
+      thisPageBookmarked: false,
       parsedText: '',
       Card: {
         // postCode: '',
@@ -241,19 +348,26 @@ export default {
 
       } else {
         this.pageIndex = this.pageIndex - 1
-        this.showPage = this.bookPages[this.pageIndex]
+        this.showPage = this.book.posts[this.pageIndex]
       }
     },
     showNextPost () { // length-1면
-      if (this.pageIndex === this.bookPages.length - 1) {
+      if (this.pageIndex === this.book.posts.length - 1) {
 
       } else {
         this.pageIndex = this.pageIndex + 1
-        this.showPage = this.bookPages[this.pageIndex]
+        this.showPage = this.book.posts[this.pageIndex]
       }
     },
+    showThisPage (index) {
+      this.pageIndex = index
+      this.showPage = this.book.posts[index]
+    },
+    deleteBook () {
+      this.$emit('deletebook', this.book)
+    },
     makeBook () {
-      this.$emit('newbook', this.bookTitle)
+      this.$emit('newbook', this.bookTitle) //textinput 에서의 v-model booktitle
     },
     newCard () {
       this.$emit('newcard', this.Card)
@@ -271,6 +385,9 @@ export default {
 </script>
 
 <style>
+.v-menu__content {
+box-shadow: none !important;
+}
 /* .dx-htmleditor {
     border-color: #888;
     border-radius: 9px;

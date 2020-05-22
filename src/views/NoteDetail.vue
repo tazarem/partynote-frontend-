@@ -192,7 +192,7 @@
         <span class="white--text">{{book.bookTitle}}</span>
         <v-divider></v-divider>
         <small style="position:absolute; right:10px; bottom:10px;" class="white--text">
-          <span>{{book.bookPage+1}}page</span>
+          <span>{{book.bookPage}}page</span>
           <v-icon color="white">mdi-book</v-icon>
         </small>
         </v-card>
@@ -264,7 +264,8 @@
       v-on:close="closeModal"
       v-on:doedit="doEdit"
       v-on:newbook="makingBook"
-      :bookPages="showBook"
+      v-on:deletebook="deleteBook"
+      :book="showBook"
       :bookTitle="showBookTitle"
       :editCard="editCard"
       :modalCase="ModalCase"
@@ -527,25 +528,31 @@ export default {
       this.OpenModal = true
     },
     openBook (bookItem) {
-      this.showBook = bookItem.posts
+      this.showBook = bookItem
       this.ModalCase = 'book'
       this.showBookTitle = bookItem.bookTitle
       this.OpenModal = true
     },
     makingBook (bt) {
       // 제목설정 모달창 띄워주고 텍스트 입력하고 확인 누르면
-      axios.post('/partynote/makeBook', {
-        posts: [this.cards[this.PagesToCreateBook.fp],
-          this.cards[this.PagesToCreateBook.sp]],
-        bookTitle: bt,
-        bookPage: 2
+      const fp = this.cards[this.PagesToCreateBook.fp]
+      const sp = this.cards[this.PagesToCreateBook.sp]
+      if (fp == null || sp == null) {
 
-      }).then((res) => {
-        console.log(res)
-        this.OpenModal = false
-        this.bringPosts()
-        this.bringBooks()
-      })
+      } else {
+        axios.post('/partynote/makeBook', {
+          posts: [fp,
+            sp],
+          bookTitle: bt,
+          bookPage: 2
+
+        }).then((res) => {
+          console.log(res)
+          this.OpenModal = false
+          this.bringPosts()
+          this.bringBooks()
+        })
+      }
       // axios 요청
       // bookcard 객체 만들어서 넘기기
     },
@@ -555,6 +562,14 @@ export default {
         postCode: pCode,
         bookCode: bCode
       }).then((res) => {
+        this.bringPosts()
+        this.bringBooks()
+      })
+    },
+    deleteBook (book) {
+      console.log(`delete this : ${book.bookCode}`)
+      axios.post('/partynote/deleteBook', book).then((res) => {
+        this.OpenModal=false
         this.bringPosts()
         this.bringBooks()
       })
@@ -632,15 +647,11 @@ export default {
     for (const i in cards) {
       cards[i].postIndex = i
     }
-    console.log(cards)
-    axios.post('/partynote/updatePostIndex', cards).then((res) => {
-      console.log(res.data.answer)
-    })
-    // axios.updateIndex 등
-    // sessionStorage.removeItem('activeNote')
-    // sessionStorage.removeItem('anTitle')
-    // sessionStorage.removeItem('anDes')
-    // sessionStorage.removeItem('anColor')
+    if (cards.length > 0) {
+      axios.post('/partynote/updatePostIndex', cards).then((res) => {
+        console.log(res.data.answer)
+      })
+    }
   }
 
 }
