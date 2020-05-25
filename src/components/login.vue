@@ -39,11 +39,14 @@
         <template v-slot:contents>
           <h3 class="mb-2"><v-icon class="mr-2">mdi-cupcake</v-icon>파티노트와 계획을 함께하세요</h3>
           <v-form v-model="valid">
-            <v-text-field label="아이디" v-model="join.userId">
+            <v-text-field label="아이디" v-model="join.userId" @change="checkId"
+            :error-messages="checkedId?'':'사용할 수 없는 아이디입니다.'">
             </v-text-field>
-            <v-text-field label="패스워드" v-model="join.userPw">
+            <v-text-field label="패스워드" v-model="join.userPw" type="password">
             </v-text-field>
-            <v-text-field label="패스워드 확인">
+            <v-text-field label="패스워드 확인" v-model="pwRewrite" type="password"
+            :error-messages="join.userPw===pwRewrite?'':'입력한 비밀번호와 다릅니다.'"
+            >
             </v-text-field>
             <v-text-field label="이름" v-model="join.userName">
             </v-text-field>
@@ -81,6 +84,7 @@ export default {
     return {
       valid: true,
       OpenModal: false,
+      checkedId: false,
       login: {
         userId: '',
         userPw: ''
@@ -90,16 +94,25 @@ export default {
         userPw: '',
         userName: '',
         userEmail: ''
-      }
+      },
+      pwRewrite: ''
     }
   },
   methods: {
+    checkId () {
+      console.log('idcheck!')
+      axios.post('/partynote/idCheck', this.join.userId).then((res) => {
+        if (res.data) {
+          this.checkedId = true
+        }
+      })
+    },
     submit () {
       if (this.login.userId === '' && this.login.userPw === '') {
         this.OpenModal = true
       } else {
         // this.OpenModal = true
-        axios.post('http://localhost:9000/partynote/login', this.login).then((data) => {
+        axios.post('/partynote/login', this.login).then((data) => {
           // vuex에 사용자 정보 집어넣기!
           console.log(data.data)
           if (data.data) {
@@ -124,14 +137,17 @@ export default {
       this.OpenModal = false
     },
     joinMember () {
-      console.log(this.join)
-      axios.post('http://localhost:9000/partynote/join', this.join).then((data) => {
-        console.log(data)
-      })
+      if (this.checkedId && this.pwRewrite === this.join.userPw) {
+        console.log(this.join)
+        axios.post('/partynote/join', this.join).then((data) => {
+          console.log(data)
+        })
 
-      console.log(`${this.join.userId} 님 회원가입 되었습니다. 로그인해 주세요.`)
+        console.log(`${this.join.userId} 님 회원가입 되었습니다. 로그인해 주세요.`)
 
-      this.closeModal()
+        this.closeModal()
+      } else {
+      }
     }
   }
 

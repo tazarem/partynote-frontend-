@@ -13,7 +13,17 @@
     <small class="headline" @click="goMain" style="cursor:pointer;" >PartyNote</small>
 
     <v-spacer></v-spacer>
-
+    <v-col cols="3">
+    <v-text-field
+    v-model="generalSearch"
+    outlined
+    placeholder="Search User or Post or Book.."
+    append-icon="mdi-magnify"
+    hide-details
+    @keyup.enter="doSearch"
+    >
+    </v-text-field>
+    </v-col>
     <v-tooltip bottom v-if="!islogin && !offline">
     <template v-slot:activator="{ on }">
     <v-btn v-if="!islogin" fab @mouseenter="btnhover=true" @mouseleave="btnhover=false"
@@ -61,7 +71,7 @@
         </v-list-item>
 
         <v-list-item
-        to="/profile"
+        :to="`/profile/${user.name}`"
         >
           <v-icon left small>mdi-cupcake</v-icon>
           <v-list-item-title>프로필</v-list-item-title>
@@ -179,6 +189,7 @@ export default {
         name: 'offline'
       },
       cards: [],
+      generalSearch: '',
       islogin: false,
       offline: false,
       btnhover: false,
@@ -274,6 +285,11 @@ export default {
       } else {
         this.$router.push('/')
       }
+    },
+    doSearch () {
+      // 일단 검색 단어에 대한 전체공백을 제거하였으나 추후 옵션에 따라 조건 필터링할 것
+      const searchData = this.generalSearch.replace(/(\s*)/g, "")
+      if (searchData !== '') { this.$router.push(`/search/${searchData}`) }
     },
     offlineMod () {
     // 로그인 정보를 오프라인 모드로 바꿉니다.
