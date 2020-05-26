@@ -5,6 +5,7 @@ import NoteDetail from '../views/NoteDetail'
 import BeforeLogin from '../views/BeforeLogin'
 import NoteIndexOffline from '../views/NoteIndexOffline'
 import Search from '../views/SearchDetail'
+import Profile from '../views/Profile'
 
 Vue.use(VueRouter)
 
@@ -41,11 +42,11 @@ const routes = [
     name: 'searchDetail',
     component: Search
   },
-  // {
-  //   path: '/profile/:userId',
-  //   name: 'profile',
-  //   component: Profile
-  // }
+  {
+    path: '/profile/:userId',
+    name: 'profile',
+    component: Profile
+  }
 ]
 
 const router = new VueRouter({

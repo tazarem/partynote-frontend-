@@ -5,7 +5,7 @@
   <v-divider></v-divider>
   <template v-if="searchUserResult.length>0">
         <span v-for="(user,index) in searchUserResult" :key="index">
-            {{user.userId}}
+            <v-btn :to="`/profile/${user.userId}`">{{user.userId}}</v-btn>
         </span>
   </template>
   <template v-else>

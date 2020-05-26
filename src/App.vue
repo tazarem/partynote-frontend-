@@ -84,11 +84,20 @@
           <v-list-item-title>로그아웃</v-list-item-title>
         </v-list-item>
 
+        <!-- 여따 알람뱃지 붙이고 친구목록 있는지부터 확인하자 -->
         <v-list-item
-        to="/friendList"
+        :to="`/friendList/${user.name}`"
         >
           <v-icon left small>mdi-muffin</v-icon>
+        <v-badge
+            color="pink"
+            :content="nfCount"
+            absolute
+            style=""
+            v-if="isExistNewFriends"
+          >
           <v-list-item-title>친구</v-list-item-title>
+          </v-badge>
         </v-list-item>
 
         <v-list-item
@@ -156,7 +165,7 @@
 
 <script>
 import Login from './components/login.vue'
-
+import axios from 'axios'
 export default {
   name: 'App',
   components: {
@@ -179,6 +188,7 @@ export default {
       this.user.color = this.randomColor()
       sessionStorage.setItem('userColor', this.user.color)
       this.user.icon = this.randomAvatar()
+      // 로그인 하고 나서...새 친구목록 있나 확인하기
     }
   },
   data () {
@@ -194,6 +204,7 @@ export default {
       offline: false,
       btnhover: false,
       EditBtnsOn: false,
+      isExistNewFriends: false,
       DeleteMode: false,
       NewDiaryBtn: false,
       OpenModal: false,
@@ -288,8 +299,12 @@ export default {
     },
     doSearch () {
       // 일단 검색 단어에 대한 전체공백을 제거하였으나 추후 옵션에 따라 조건 필터링할 것
-      const searchData = this.generalSearch.replace(/(\s*)/g, "")
-      if (searchData !== '') { this.$router.push(`/search/${searchData}`) }
+      const searchData = this.generalSearch.replace(/(\s*)/g, '')
+      // this.$route.path 가 search라 리프레시가 안된다면 리프레시요청하기
+      if (searchData !== '') {
+        this.$router.push(`/search/${searchData}`)
+        this.generalSearch = ''
+      }
     },
     offlineMod () {
     // 로그인 정보를 오프라인 모드로 바꿉니다.
@@ -299,6 +314,20 @@ export default {
       this.$router.push('/noteIndex-offline-mod')
       this.offline = true
       // this.islogin = true
+    }
+  },
+  watch: {
+    islogin: function () {
+      if (this.islogin) {
+        axios.post('/partynote/bringNewFriendsReq', this.user.name).then((res) => {
+          if (res.data > 0) {
+            this.nfCount=res.data
+            this.isExistNewFriends = true
+          } else {
+            this.isExistNewFriends = false
+          }
+        })
+      }
     }
   }
 }
