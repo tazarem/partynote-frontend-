@@ -71,9 +71,10 @@
         make friends!
       </v-btn>
       <v-btn
-      depressed color="teal accent-4"
+      depressed
       class="white--text"
       v-else-if="fr==0"
+      disabled
       >
       <v-icon class="mr-2">mdi-cookie</v-icon> already requested
       </v-btn>

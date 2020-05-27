@@ -6,6 +6,7 @@ import BeforeLogin from '../views/BeforeLogin'
 import NoteIndexOffline from '../views/NoteIndexOffline'
 import Search from '../views/SearchDetail'
 import Profile from '../views/Profile'
+import FriendList from '../views/FriendList'
 
 Vue.use(VueRouter)
 
@@ -46,6 +47,11 @@ const routes = [
     path: '/profile/:userId',
     name: 'profile',
     component: Profile
+  },
+  {
+    path: '/friendList/:userId',
+    name: 'fl',
+    component: FriendList
   }
 ]
 
