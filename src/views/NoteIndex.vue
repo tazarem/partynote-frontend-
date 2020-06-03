@@ -85,8 +85,12 @@
       </v-text-field>
       <v-text-field label="간략한 설명을 적으십시오.." v-model="newNote.noteDes">
       </v-text-field>
-      <h3>노트 색 정하기</h3>
-      <v-select :items="ColorSample" v-model="newNote.noteColor" :background-color="newNote.noteColor"
+      <v-select label="노트 공개 설정" v-model="newNote.priv">
+
+      </v-select>
+      <v-select :items="ColorSample"
+      label="노트 색 정하기"
+      v-model="newNote.noteColor" :background-color="newNote.noteColor"
       >
       </v-select>
     </v-form>
@@ -131,7 +135,8 @@ export default {
         noteCode: sessionStorage.getItem('loginUser'),
         noteTitle: '',
         noteDes: '',
-        noteColor: ''
+        noteColor: '',
+        priv: ''
       },
       ColorSample: [
         'red lighten-5', 'red  lighten-4', 'red lighten-3',
@@ -158,14 +163,15 @@ export default {
         noteCode: sessionStorage.getItem('loginUser'),
         noteTitle: '',
         noteDes: '',
-        noteColor: ''
+        noteColor: '',
+        priv:''
       }
     },
     openModal () {
       this.Modal = true
     },
     loadNote () {
-      axios.get(`http://localhost:9000/partynote/bringNoteIndex?userId=${sessionStorage.getItem('loginUser')}`).then(
+      axios.get(`/partynote/bringNoteIndex?userId=${sessionStorage.getItem('loginUser')}`).then(
         (req) => {
           this.notes = req.data
         }
@@ -173,7 +179,7 @@ export default {
     },
     submit () { // 새 노트의 정보를 전달해서 엽니다.
       // 폼이 맞는가를 체크하고
-      axios.post('http://localhost:9000/partynote/makeNote', this.newNote).then(
+      axios.post('/partynote/makeNote', this.newNote).then(
         (request) => {
           this.closeModal()
           this.loadNote()
@@ -218,7 +224,7 @@ export default {
       }
     },
     editNote (note) {
-      axios.post('http://localhost:9000/partynote/editNote', note).then(
+      axios.post('/partynote/editNote', note).then(
         (request) => {
           console.log('노트 편집됨')
           this.closeModal()
@@ -227,7 +233,7 @@ export default {
       )
     },
     deleteNote (note) {
-      axios.post('http://localhost:9000/partynote/deleteNote', note).then(
+      axios.post('/partynote/deleteNote', note).then(
         (req) => {
           // 노트가 삭제되었습니다 알람? 혹은 표시를 내줘야지 삭제된걸 알지
           this.closeModal()

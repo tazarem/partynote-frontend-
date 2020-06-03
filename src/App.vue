@@ -42,21 +42,37 @@
     v-on:login="fetchLogin"
     ></Login>
 
-    <transition name="fade">
-    <v-btn text small :fab="!btnhover" v-if="islogin"
+  <v-tooltip bottom>
+    <template v-slot:activator="{on}">
+    <v-btn text small fab v-if="islogin"
     @mouseenter="btnhover=true" @mouseleave="btnhover=false"
     :color="user.color"
+    v-on="on"
     @click="reColor"
     >
       <v-icon>mdi-recycle</v-icon>
-      <span v-show="btnhover" class="ml-2">ReColor?</span>
     </v-btn>
-    </transition>
+    </template>
+      <span>
+      ReColor?
+      </span>
+  </v-tooltip>
+
+<!-- <span v-show="btnhover" class="ml-2">ReColor?</span> -->
+
 
     <!-- 로그인 할 때 출현하는 메뉴 -->
     <v-menu offset-y class="mr-3" v-if="islogin">
       <template v-slot:activator="{ on }">
         <v-btn text v-on="on">
+          <v-badge
+            color="pink"
+            :content="nfCount"
+            absolute
+            style="z-index:20; transform: translateX(30px) translateY(-5px);"
+            v-if="isExistNewFriends"
+          >
+          </v-badge>
         <v-avatar size="37" class="mr-3" :color="user.color">
           <v-icon>{{user.icon}}</v-icon>
         </v-avatar>
@@ -88,16 +104,17 @@
         <v-list-item
         :to="`/friendList/${user.name}`"
         >
-          <v-icon left small>mdi-muffin</v-icon>
-        <v-badge
+          <v-badge
             color="pink"
-            :content="nfCount"
+            dot
             absolute
-            style=""
+            style="z-index:20; transform: translateX(15px) translateY(-7px);"
             v-if="isExistNewFriends"
           >
-          <v-list-item-title>친구</v-list-item-title>
           </v-badge>
+          <v-icon left small :class="isExistNewFriends? 'pink--text':''">mdi-muffin</v-icon>
+
+          <v-list-item-title >친구</v-list-item-title>
         </v-list-item>
 
         <v-list-item

@@ -40,8 +40,8 @@
                   <!-- <v-list-item @click="showThisPage(bookMark)">
                          <v-list-item-title>북마크로 이동</v-list-item-title>
                         </v-list-item> -->
-            <template v-for="(pageI,index) in book.posts">
-            <v-list-item :key="index" @click="showThisPage(index)">
+            <template v-for="(pageI, index) in book.posts">
+            <v-list-item :key="`list_item${index}`" @click="showThisPage(index)">
                 <template v-if="pageIndex==index">
                 <v-sheet style="height:100%; width:5px; position:absolute; left:0;"
                 :color="showPage.postColor"
@@ -54,7 +54,7 @@
             <template v-if="index+1==book.posts.length">
             </template>
             <template v-else>
-                  <v-divider :key="index"></v-divider>
+                  <v-divider :key="`divider${index}`"></v-divider>
             </template>
             </template>
 

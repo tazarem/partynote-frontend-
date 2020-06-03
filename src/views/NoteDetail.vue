@@ -182,7 +182,7 @@
         width="225"
         min-height="138"
         max-height="138"
-        color="primary"
+        :color="`${book.posts[0].postColor}`"
         :id="book.bookCode+index"
         @dragend="cardDragEnd"
         @dragover="allowCardDrop"
