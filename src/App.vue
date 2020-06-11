@@ -13,6 +13,29 @@
     <small class="headline" @click="goMain" style="cursor:pointer;" >PartyNote</small>
 
     <v-spacer></v-spacer>
+
+    <v-tooltip bottom v-if="islogin">
+    <template v-slot:activator="{ on }">
+    <v-badge :value="msgBanner>0"
+      color="pink"
+      dot
+      :content="msgBanner">
+    <v-btn fab
+    v-on="on"
+    @click="debugPopUp = !debugPopUp"
+    small
+    depressed>
+      <v-icon>mdi-heart-pulse</v-icon>
+    </v-btn>
+        </v-badge>
+    </template>
+    <span>전체 채팅(테스트)</span>
+    </v-tooltip>
+
+    <Chatter :debugPopUp="debugPopUp"
+    v-on:recivedMsg="updateBanner"
+    ></Chatter>
+
     <v-col cols="3">
     <v-text-field
     v-model="generalSearch"
@@ -24,6 +47,7 @@
     >
     </v-text-field>
     </v-col>
+
     <v-tooltip bottom v-if="!islogin && !offline">
     <template v-slot:activator="{ on }">
     <v-btn v-if="!islogin" fab @mouseenter="btnhover=true" @mouseleave="btnhover=false"
@@ -59,7 +83,6 @@
   </v-tooltip>
 
 <!-- <span v-show="btnhover" class="ml-2">ReColor?</span> -->
-
 
     <!-- 로그인 할 때 출현하는 메뉴 -->
     <v-menu offset-y class="mr-3" v-if="islogin">
@@ -182,12 +205,13 @@
 
 <script>
 import Login from './components/login.vue'
+import Chatter from './components/debugChatter.vue'
 import axios from 'axios'
 export default {
   name: 'App',
   components: {
-    Login
-
+    Login,
+    Chatter
   },
   created () {
     // 유저 정보 불러오기. axios를 이용하여 다이어리와 포스트를 불러와 백엔드와 통신.
@@ -217,6 +241,8 @@ export default {
       },
       cards: [],
       generalSearch: '',
+      debugPopUp: false,
+      msgBanner: 0,
       islogin: false,
       offline: false,
       btnhover: false,
@@ -234,9 +260,13 @@ export default {
       },
       ModalCase: 'create',
       EditedTitle: 'New Card'
+
     }
   },
   methods: {
+    updateBanner () {
+      this.msgBanner += 1
+    },
     fetchLogin () {
       this.user.name = sessionStorage.getItem('loginUser')
       this.islogin = true
@@ -338,12 +368,17 @@ export default {
       if (this.islogin) {
         axios.post('/partynote/bringNewFriendsReq', this.user.name).then((res) => {
           if (res.data > 0) {
-            this.nfCount=res.data
+            this.nfCount = res.data
             this.isExistNewFriends = true
           } else {
             this.isExistNewFriends = false
           }
         })
+      }
+    },
+    debugPopUp: function () {
+      if (this.debugPopUp === true) {
+        this.msgBanner = 0
       }
     }
   }

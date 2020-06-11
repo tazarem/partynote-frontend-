@@ -5,7 +5,7 @@
   >
   <h2 class="white--text" v-if="true" style="width:100%;"
   >Select your Note</h2>
-  
+
   <v-spacer></v-spacer>
   <v-btn fab small class="mr-2" depressed
   :class="this.toggleMode==='edit'? 'warning':'grey lighten-4'"
@@ -109,14 +109,11 @@
 </template>
 
 <script>
+import store from '../api/store'
 import Modal from '../components/modal.vue'
 export default {
   components: {
     Modal
-    // Login,
-    // Scheduler,
-    // Hotline,
-    // Tagfilter
   },
   created () {
     // 사용자 정보를 토대로 노트를 불러옵니다
@@ -124,6 +121,8 @@ export default {
   },
   data () {
     return {
+      db: {},
+      req: {},
       Modal: false,
       notes: [],
       toggleMode: 'default',
@@ -165,28 +164,12 @@ export default {
       this.Modal = true
     },
     loadNote () {
-      // axios.get(`http://localhost:9000/partynote/bringNoteIndex?userId=${sessionStorage.getItem('loginUser')}`).then(
-      //   (req) => {
-      //     this.notes = req.data
-      //   }
-      // )
+    // 저장된 데이터 가져오기
     },
-    submit () { // 새 노트의 정보를 전달해서 엽니다.
-      // 폼이 맞는가를 체크하고
-      // axios.post('http://localhost:9000/partynote/makeNote', this.newNote).then(
-      //   (request) => {
-      //     this.closeModal()
-      //     this.loadNote()
-      //   }
-      // )
+    submit () {
+      // this.noteCode
     },
     noteDetail (note) {
-      sessionStorage.setItem('activeNote', note.noteCode)
-      sessionStorage.setItem('anColor', note.noteColor)
-      sessionStorage.setItem('anTitle', note.noteTitle)
-      sessionStorage.setItem('anDes', note.noteDes)
-
-      this.$router.push(`/noteDetail-offline/${note.noteCode}`)
     },
     nowModes () {
       const mode = this.toggleMode
@@ -200,42 +183,13 @@ export default {
       }
     },
     editOrDelete (note) {
-      const mode = this.toggleMode
-      this.newNote.noteCode = note.noteCode
-      this.newNote.noteTitle = note.noteTitle
-      this.newNote.noteDes = note.noteDes
-      this.newNote.noteColor = note.noteColor
-      switch (mode) {
-        case 'edit': {
-          // 뉴노트에 이 정보를 넘기고 크루드합니다.
-          this.openModal()
-          console.log('edit this : ' + note.noteCode) // 노트의 이름과 색, 디스크립션을 수정할 수 있도록 하기.
-          break }
-        case 'delete': {
-          this.openModal()
-          console.log('delete this : ' + note.noteCode) // 노트를 삭제. disable 처리하기. (하위 항목은 전부 지울까?)
-          break }
-      }
+
     },
     editNote (note) {
-      // axios.post('http://localhost:9000/partynote/editNote', note).then(
-      //   (request) => {
-      //     console.log('노트 편집됨')
-      //     this.closeModal()
-      //     this.loadNote()
-      //   }
-      // )
+
     },
     deleteNote (note) {
-      // axios.post('http://localhost:9000/partynote/deleteNote', note).then(
-      //   (req) => {
-      //     // 노트가 삭제되었습니다 알람? 혹은 표시를 내줘야지 삭제된걸 알지
-      //     this.closeModal()
-      //     const sound = document.getElementById('playSound')
-      //     sound.play()
-      //     this.loadNote()
-      //   }
-      // )
+
     }
   }
 }
