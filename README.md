@@ -25,3 +25,4 @@
  개발 노트 및 진행사항은 아래 트렐로 사이트에서 확인하실 수 있습니다.
 
 https://trello.com/b/fPcaarw2/partynote
+
