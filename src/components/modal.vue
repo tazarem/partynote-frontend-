@@ -63,7 +63,8 @@
 
         </template>
       <!-- 성질이 book일 때 다음 포스트로 이동 -->
-        <v-card tile min-height="500px" height="50%">
+        <v-card tile>
+          <!-- min-height="500px" height="50%" -->
           <!-- <v-card-title> -->
         <v-toolbar flat max-height="64px" color="transparent">
                 <template v-if="modalCase==='book'">

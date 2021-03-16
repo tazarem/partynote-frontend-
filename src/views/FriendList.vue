@@ -139,7 +139,7 @@ export default {
       this.bringRequestedFri()
     },
     bringFriendsReq () { // 새로 들어온 친구요청 받아오기
-      axios.post('/partynote/bringNewFriendsDet', this.$route.params.userId).then((res) => {
+      axios.post('/partynote/bringNewFriendsReq', this.$route.params.userId).then((res) => {
         this.newFriendList = res.data
       })
     },

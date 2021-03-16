@@ -125,17 +125,6 @@ export default {
         })
       }
     },
-    closeModal () {
-      // 값 초기화
-      this.join = {
-        userId: '',
-        userPw: '',
-        userName: '',
-        userEmail: ''
-      }
-      // 모달 비활성화
-      this.OpenModal = false
-    },
     joinMember () {
       if (this.checkedId && this.pwRewrite === this.join.userPw) {
         console.log(this.join)
@@ -148,7 +137,18 @@ export default {
         this.closeModal()
       } else {
       }
-    }
+    },
+    closeModal () {
+      // 값 초기화
+      this.join = {
+        userId: '',
+        userPw: '',
+        userName: '',
+        userEmail: ''
+      }
+      // 모달 비활성화
+      this.OpenModal = false
+    },
   }
 
 }
